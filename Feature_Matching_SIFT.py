@@ -6,9 +6,9 @@ import cv2
 # 사진 불러오기
 img1 = r'C:\Users\설재훈\OneDrive\바탕 화면\Spyder\Source\Test\BLD00001_PS3_K3A_NIA0276.png'
 img2 = r'C:\Users\설재훈\OneDrive\바탕 화면\Spyder\Source\Test\BLD00001_PS3_K3A_NIA0276(3).png'
-#img2 = r'C:\Users\설재훈\OneDrive\바탕 화면\Spyder\Source\localization\1_14.png'
 
 # 파일을 바이너리 모드로 읽기
+# 경로에 한글이 있으면 opencv에 업로드가 안됌
 with open(img1, 'rb') as f:
     img_array1 = np.asarray(bytearray(f.read()), dtype=np.uint8)
 with open(img2, 'rb') as f:
@@ -17,39 +17,6 @@ with open(img2, 'rb') as f:
 # openCV로 이미지 로드 (흑백 변환)
 src1 = cv2.imdecode(img_array1, cv2.IMREAD_GRAYSCALE)
 src2 = cv2.imdecode(img_array2, cv2.IMREAD_GRAYSCALE)
-
-# 양방향 필터 (노이즈 제거)
-src1 = cv2.bilateralFilter(src1, -1, 10, 5)
-src2 = cv2.bilateralFilter(src2, -1, 10, 5)
-
-# CLAHE 적용 (대비 향상)
-clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
-src1 = clahe.apply(src1)
-src2 = clahe.apply(src2)
-
-# 히스토그램 매칭 함수
-def histogram_matching(src2, src1):
-    src2_hist, _ = np.histogram(src2.flatten(), 256, [0, 256])
-    src1_hist, _ = np.histogram(src1.flatten(), 256, [0, 256])
-    
-    src_cdf = src2_hist.cumsum() / src2_hist.sum()
-    ref_cdf = src1_hist.cumsum() / src1_hist.sum()
-    
-    lookup_table = np.searchsorted(ref_cdf, src_cdf).astype(np.uint8)
-    matched = lookup_table[src2]
-    return matched
-
-src2 = histogram_matching(src2, src1)
-
-# 가우시안 블러 적용 (노이즈 제거) + 언샤프 마스크 필터 (엣지 강조)
-#blr1 = cv2.GaussianBlur(src1, (5,5), 0)
-#blr2 = cv2.GaussianBlur(src2, (5,5), 0)
-#src1 = cv2.addWeighted(src1, 1.5, blr1, -0.5, 0)
-#src2 = cv2.addWeighted(src2, 1.5, blr2, -0.5, 0)
-
-# 히스토그램 정규화 (화질 개선)
-#src1 = cv2.normalize(src1, None, 0, 255, cv2.NORM_MINMAX)
-#src2 = cv2.normalize(src2, None, 0, 255, cv2.NORM_MINMAX)
 
 if src1 is None or src2 is None:
     print("Image load failed!")
