@@ -21,7 +21,7 @@ if src1 is None or src2 is None:
     print("Image load failed!")
     sys.exit()
 
-# SIFT 알고리즘 객체 생성
+# SUFT 알고리즘 객체 생성
 feature = cv2.xfeatures2d.SURF_create()
 
 # 특징점 검출 및 기술자 계산
